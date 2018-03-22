@@ -7,6 +7,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 const {height, width} = Dimensions.get("window");
 
 export default class App extends React.Component {
+  
   state = {
     newToDo: ""
   };
@@ -29,8 +30,8 @@ export default class App extends React.Component {
             returnKeyType={"done"}
             autoCorrect={false}
           />
-          <ScrollView>
-            <ToDo />
+          <ScrollView contentContainerStyle={styles.toDos}>{/* 다음의 텍스트를 props로 하위 컴포넌트로 넘겨준다.*/}
+            <ToDo text={"Hello I'm a ToDo"} /> 
           </ScrollView>
         </View>
       </View>
@@ -83,5 +84,8 @@ const styles = StyleSheet.create({
     borderBottomColor:"#bbb",
     borderBottomWidth: 1,
     fontSize: 25,
+  },
+  todos: {
+    alignItems: "center"
   }
 });
