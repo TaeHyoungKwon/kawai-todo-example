@@ -9,12 +9,12 @@ const {height, width} = Dimensions.get("window");
 export default class App extends React.Component {
   
   state = {
-    newToDo: ""
+    newToDo: ""//새롭게 추가되는 할일 리스트
   };
 
   render() {
 
-    const { newToDo } = this.state;
+    const { newToDo } = this.state; //state 값으로 newToDo를 받는다.
 
     return (
       <View style={styles.container}>
@@ -30,7 +30,7 @@ export default class App extends React.Component {
             returnKeyType={"done"}
             autoCorrect={false}
           />
-          <ScrollView contentContainerStyle={styles.toDos}>{/* 다음의 텍스트를 props로 하위 컴포넌트로 넘겨준다.*/}
+          <ScrollView contentContainerStyle={styles.toDos}>
             <ToDo text={"Hello I'm a ToDo"} /> 
           </ScrollView>
         </View>

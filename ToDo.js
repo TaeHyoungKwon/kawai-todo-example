@@ -8,7 +8,7 @@ import {
   TextInput
 } from "react-native";
 
-const { width, height } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window"); //View 의 윈도우 사이즈를 가져온다.
 
 export default class ToDo extends Component {
   state = {
@@ -19,7 +19,7 @@ export default class ToDo extends Component {
 
   render() {
     const { toDoValue, isCompleted, isEditing } = this.state; //state값을 받아온다.
-    const { text } = this.props;
+    const { text } = this.props; //props 값도 받아온다.
 
     return (
       <View style={styles.container}>{/* 메인 container 시작 */}
@@ -29,19 +29,22 @@ export default class ToDo extends Component {
               style={[
                 styles.circle,
                 isCompleted ? styles.completedCircle : styles.uncompletedCircle
-              ]}
+              ]}  /* isCompleted가 참이면 completedCircle에 해당하는 스타일이 적용되고, 거짓이면 uncompletedCircle이 적용된다.*/
             />
           </TouchableOpacity>
+
           {isEditing ? (
-            <TextInput
+            <TextInput /* isEditing이 true 일ㄷ 때, TextInput을 보여준다.*/
               style={[styles.input, styles.text, 
               isCompleted ? styles.completedText : styles.uncompletedText
-                ]}
+                ]} /* isCompleted가 true이면 completedText를 아니면  uncompletedText 스타일을 적용한다.*/
+                /* 이하는 TextInput 컴포넌트에 대한 기본적인 props 값들*/
                 value={toDoValue}
                 multiline={true}
                 onChangeText={this._controllInput}
                 returnKeyType={"done"}
-                onBlur={this._finishEditing}
+                onBlur={this._finishEditing} /*onBlur는 text input이 blurred될 때 호출되는 콜백이다.*/
+                /* 함수 형태의 props 이고 _finishEditing을 호출 */
               />
               ) : (
                 <Text
@@ -81,6 +84,7 @@ export default class ToDo extends Component {
   }
   _toggleComplete = () => {
     this.setState(prevState => {
+      //toggle 버튼을 눌렀을 때, 이전 state 상에서 isCompleted 만 반대로 수정한다.
       return {
         isCompleted: !prevState.isCompleted
       };
@@ -98,11 +102,12 @@ export default class ToDo extends Component {
     });
   };
 
-
-  _controllInput = text => {
-    this.setState({ toDoValue: text });
+  _controllInput = text1 => {
+    console.log(text1);
+    this.setState({ toDoValue: text1 });
   };
 }
+
 const styles = StyleSheet.create({
   container: {
     width: width - 50,
