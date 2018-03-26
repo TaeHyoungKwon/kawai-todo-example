@@ -50,7 +50,8 @@ export default class App extends React.Component {
                 key={toDo.id} 
                 deleteToDo={this._deleteToDo} 
                 uncompleteToDo={this._uncompleteToDo}
-                completeToDo={this._completeToDo} 
+                completeToDo={this._completeToDo}
+                updateToDo={this._updateToDo}
                 {...toDo} />
             ))}
           </ScrollView>
@@ -142,7 +143,25 @@ export default class App extends React.Component {
       return { ...newState };
     });
   }
-  
+
+  _updateToDo = (id, text) => {
+    console.log("dfasdf")
+    console.log(text);
+    this.setState(prevState => {
+      console.log(prevState);
+      const newState = {
+        ...prevState,
+        toDos: {
+          ...prevState.toDos,
+          [id]: { ...prevState.toDos[id], text: text }
+        }
+      };
+
+      console.log(newState);
+      return { ...newState };
+    })
+  }
+
 }
 
 const styles = StyleSheet.create({
