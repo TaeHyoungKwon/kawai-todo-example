@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, StatusBar, TextInput, Dimensions,Platform } from 'react-native';
 import { AppLoading } from "expo";
 import ToDo from "./ToDo.js"
+import uuidv1 from "uuid/v1";
 
 import { ScrollView } from 'react-native-gesture-handler';
 
@@ -11,7 +12,8 @@ export default class App extends React.Component {
   
   state = {
     newToDo: "",//새롭게 추가되는 할일 리스트
-    loadedToDos: false, // 보여지는toDO
+    loadedToDos: false, // toDo가 로드가 되었는지 여부
+    toDos: {} // 할일 리스트 객체
   };
 
   //컴포넌트가 만들어지고 첫 렌더링을 마친후 실행되는 메소드
@@ -21,7 +23,7 @@ export default class App extends React.Component {
 
   render() {
 
-    const { newToDo, loadedToDos } = this.state; //state 값으로 newToDo를 받는다.
+    const { newToDo, loadedToDos, toDos } = this.state; //state 값으로 newToDo를 받는다.
 
     if (!loadedToDos) {
       return <AppLoading/>;
@@ -40,9 +42,17 @@ export default class App extends React.Component {
             placeholderTextColor={"#999"}
             returnKeyType={"done"}
             autoCorrect={false}
+            onSubmitEditing={this._addToDo}
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            <ToDo text={"Hello I'm a ToDo"} /> 
+            {Object.values(toDos).map(toDo => (
+              <ToDo 
+                key={toDo.id} 
+                deleteToDo={this._deleteToDo} 
+                uncompleteToDo={this._uncompleteToDo}
+                completeToDo={this._completeToDo} 
+                {...toDo} />
+            ))}
           </ScrollView>
         </View>
       </View>
@@ -58,6 +68,81 @@ export default class App extends React.Component {
       loadedToDos: true
     });
   };
+
+  _addToDo = () => {
+    const { newToDo } = this.state; // _controllNewToDo를 통해 실시간으로 바뀌는 newToDo state를 받는다.
+    
+    if (newToDo !== "") {
+      this.setState(prevState => {
+        const ID = uuidv1();
+        const newToDoObject = {
+          [ID]: {
+            id: ID,
+            isCompleted: false,
+            text: newToDo,
+            createdAt: Date.now()
+          }
+        };
+
+        console.log({...newToDoObject})
+
+        const newState = {
+          ...prevState,
+          newToDo: "",
+          toDos: {
+            ...prevState.toDos,
+            ...newToDoObject
+          }
+        };
+  
+        return { ...newState };
+      });
+    }
+  };
+
+  _deleteToDo = id => {
+    this.setState(prevState => {
+      const toDos = prevState.toDos;
+      delete toDos[id];
+      const newState = {
+        ...prevState,
+        ...toDos
+      };
+      return { ...newState };
+    });
+  };
+
+  _uncompleteToDo = id => {    
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        toDos: {
+          ...prevState.toDos,
+          [id]: {
+            ...prevState.toDos[id],
+            isCompleted: false
+          }
+        }
+      };
+      return { ...newState };
+    });
+  }
+
+  _completeToDo = id => {
+    this.setState(prevState => {
+      const newState = {
+        ...prevState,
+        toDos: {
+          ...prevState.toDos,
+          [id]: { ...prevState.toDos[id], 
+            isCompleted: true
+          }
+        }
+      };
+      return { ...newState };
+    });
+  }
+  
 }
 
 const styles = StyleSheet.create({

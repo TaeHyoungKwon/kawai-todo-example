@@ -7,19 +7,28 @@ import {
   Dimensions,
   TextInput
 } from "react-native";
+import PropTypes from "prop-types";
 
 const { width, height } = Dimensions.get("window"); //View 의 윈도우 사이즈를 가져온다.
 
 export default class ToDo extends Component {
-  state = {
-    isEditing: false, //수정화면 인지 아닌지,
-    isCompleted: false,// 완성이됬는지 아닌지,
-    toDoValue: ""
+  constructor(props) {
+    super(props);
+    this.state = { isEditing: false, toDoValue: props.text };
+  }
+
+  static propTypes = {
+    text: PropTypes.string.isRequired,
+    isCompleted: PropTypes.bool.isRequired,
+    deleteToDo: PropTypes.func.isRequired,
+    id: PropTypes.string.isRequired,
+    uncompleteToDo: PropTypes.func.isRequired,
+    completeToDo: PropTypes.func.isRequired
   };
 
   render() {
-    const { toDoValue, isCompleted, isEditing } = this.state; //state값을 받아온다.
-    const { text } = this.props; //props 값도 받아온다.
+    const { toDoValue, isEditing } = this.state; //state값을 받아온다.
+    const { text, id, deleteToDo, isCompleted } = this.props; //props 값도 받아온다.
 
     return (
       <View style={styles.container}>{/* 메인 container 시작 */}
@@ -35,7 +44,7 @@ export default class ToDo extends Component {
 
           {isEditing ? (
             <TextInput /* isEditing이 true 일ㄷ 때, TextInput을 보여준다.*/
-              style={[styles.input, styles.text, 
+              style={[styles.text, styles.input,  
               isCompleted ? styles.completedText : styles.uncompletedText
                 ]} /* isCompleted가 true이면 completedText를 아니면  uncompletedText 스타일을 적용한다.*/
                 /* 이하는 TextInput 컴포넌트에 대한 기본적인 props 값들*/
@@ -72,7 +81,7 @@ export default class ToDo extends Component {
                 <Text style={styles.actionText}>✏️</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPressOut={ () => deleteToDo(id)}>
               <View style={styles.actionContainer}>
                 <Text style={styles.actionText}>❌</Text>
               </View>
@@ -83,17 +92,19 @@ export default class ToDo extends Component {
     );
   }
   _toggleComplete = () => {
-    this.setState(prevState => {
-      //toggle 버튼을 눌렀을 때, 이전 state 상에서 isCompleted 만 반대로 수정한다.
-      return {
-        isCompleted: !prevState.isCompleted
-      };
-    });
+    const { isCompleted, uncompleteToDo, completeToDo, id} = this.props;
+
+    console.log({...this.props})
+
+    if (isCompleted) {
+      uncompleteToDo(id);
+    } else {
+      completeToDo(id);
+    }
   };
 
   _startEditing = () => {
-    const { text } = this.props;
-    this.setState({ isEditing: true, toDoValue: text});
+    this.setState({ isEditing: true });
   };
 
   _finishEditing = () => {
@@ -103,7 +114,6 @@ export default class ToDo extends Component {
   };
 
   _controllInput = text1 => {
-    console.log(text1);
     this.setState({ toDoValue: text1 });
   };
 }
@@ -146,8 +156,7 @@ const styles = StyleSheet.create({
   column: {
     flexDirection: "row",
     alignItems: "center",
-    width: width / 2,
-    justifyContent: "space-between"
+    width: width / 2
   },
   actions: {
     flexDirection: "row"
@@ -157,7 +166,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 10
   },
   input: {
-    marginVertical: 20,
-    width: width / 2
+    width: width / 2,
+    marginVertical: 15,
+    paddingBottom: 5
+    
   }
 });
