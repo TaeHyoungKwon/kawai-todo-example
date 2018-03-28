@@ -1,5 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View, StatusBar, TextInput, Dimensions,Platform } from 'react-native';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  StatusBar, 
+  TextInput, 
+  Dimensions,
+  Platform,
+  AsyncStorage } from 'react-native';
 import { AppLoading } from "expo";
 import ToDo from "./ToDo.js"
 import uuidv1 from "uuid/v1";
@@ -45,14 +53,17 @@ export default class App extends React.Component {
             onSubmitEditing={this._addToDo}
           />
           <ScrollView contentContainerStyle={styles.toDos}>
-            {Object.values(toDos).map(toDo => (
+            {Object.values(toDos)
+              .reverse()
+              .map(toDo =>(
               <ToDo 
-                key={toDo.id} 
-                deleteToDo={this._deleteToDo} 
+                key={toDo.id}
+                deleteToDo={this._deleteToDo}
                 uncompleteToDo={this._uncompleteToDo}
                 completeToDo={this._completeToDo}
                 updateToDo={this._updateToDo}
-                {...toDo} />
+                {...toDo}
+                />
             ))}
           </ScrollView>
         </View>
@@ -64,10 +75,15 @@ export default class App extends React.Component {
       newToDo: text
     });
   };
-  _loadToDos = () => {
-    this.setState({
-      loadedToDos: true
-    });
+  _loadToDos = async () => {
+    try {
+      const toDos = await AsyncStorage.getItem("toDos");
+      console.log(toDos);
+      const parsedToDos = JSON.parse(toDos);
+      this.setState({ loadedToDos: true, toDos: parsedToDos });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   _addToDo = () => {
@@ -95,7 +111,7 @@ export default class App extends React.Component {
             ...newToDoObject
           }
         };
-  
+        this._saveToDos(newState.toDos);
         return { ...newState };
       });
     }
@@ -109,6 +125,7 @@ export default class App extends React.Component {
         ...prevState,
         ...toDos
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   };
@@ -125,6 +142,7 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   }
@@ -140,6 +158,7 @@ export default class App extends React.Component {
           }
         }
       };
+      this._saveToDos(newState.toDos);
       return { ...newState };
     });
   }
@@ -158,9 +177,17 @@ export default class App extends React.Component {
       };
 
       console.log(newState);
+      this._saveToDos(newState.toDos);
       return { ...newState };
-    })
-  }
+    });
+  };
+
+  //_saveToDos - 저장과 관련된 일을 하는데, 인자 값으로 newToDos를 받는다.
+  _saveToDos = newToDos => {
+    const saveToDos = AsyncStorage.setItem("toDos", JSON.stringify(newToDos));
+    console.log(newToDos);
+    console.log(JSON.stringify(newToDos));
+  };
 
 }
 
